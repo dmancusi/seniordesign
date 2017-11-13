@@ -182,7 +182,7 @@ namespace BigData.OCLC {
         /// Returns the URI of the best available cover image for the book
         /// </summary>
         /// <param name="oclcNumber">The OCLC number representing the material</param>
-        /// <returns>Cover Image URI</returns>
+        /// <returns>Array of Cover Image URIs</returns>
         async static Task<Uri[]> GetOCLCCoverImageUriAsync(string oclcNumber) {
             var baseUri = new Uri(@"https://bucknell.worldcat.org/oclc/");
             var oclcUri = new Uri(baseUri, oclcNumber);
@@ -191,13 +191,13 @@ namespace BigData.OCLC {
             using (var response = await request.GetResponseAsync()) {
                 var doc = new HtmlDocument();
                 doc.Load(response.GetResponseStream());
-                var img = doc.DocumentNode.SelectSingleNode(@"//*[@id='cover']/img");
+                var img = doc.DocumentNode.SelectSingleNode(@"//*[@class='coverart']/img");
 
-                var src = img.Attributes["src"].Value;
+                var src = img.Attributes["ng-src"].Value;
                 Console.WriteLine(src);
-                return new Uri[] {
-                    new Uri(baseUri.Scheme + ":" + src.Replace("_140.jpg", "_400.jpg")),
-                    new Uri(baseUri.Scheme + ":" + src),
+                return new [] { // 400px is no longer available
+                    new Uri(baseUri.Scheme + ":" + src.Replace("_70.jpg", "_140.jpg")),
+                    new Uri(baseUri.Scheme + ":" + src.Replace("_70.jpg", "_140.jpg")),
                     new Uri(baseUri.Scheme + ":" + src.Replace("_140.jpg", "_70.jpg"))
                 };
             }
